@@ -847,24 +847,15 @@ wait_for_bind({xmlstreamelement, El}, StateData) ->
 		    %%		      RosterVersioningFeature],
 		    %%send_element(StateData, {xmlelement, "stream:features",
 		    %%			     [], StreamFeatures}),
-			
-			%% prevent connection if resource is already in use
-			case ejabberd_sm:is_existing_resource(U, StateData#state.server, R) of
-				true ->
-					Err = jlib:make_error_reply(El, ?STANZA_ERROR("409", "modify", "conflict")),
-					send_element(StateData, Err),
-					fsm_next_state(wait_for_bind, StateData);
-				_ ->
-					Res = IQ#iq{type = result,
-					sub_el = [{xmlelement, "bind",
-						   [{"xmlns", ?NS_BIND}],
-						   [{xmlelement, "jid", [],
-							 [{xmlcdata,
-							   jlib:jid_to_string(JID)}]}]}]},
-					send_element(StateData, jlib:iq_to_xml(Res)),
-					fsm_next_state(wait_for_session,
-						   StateData#state{resource = R, jid = JID})
-			end
+		    Res = IQ#iq{type = result,
+				sub_el = [{xmlelement, "bind",
+					   [{"xmlns", ?NS_BIND}],
+					   [{xmlelement, "jid", [],
+					     [{xmlcdata,
+					       jlib:jid_to_string(JID)}]}]}]},
+		    send_element(StateData, jlib:iq_to_xml(Res)),
+		    fsm_next_state(wait_for_session,
+				   StateData#state{resource = R, jid = JID})
 	    end;
 	_ ->
 	    fsm_next_state(wait_for_bind, StateData)

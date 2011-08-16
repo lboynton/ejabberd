@@ -53,8 +53,7 @@
 	 user_resources/2,
 	 get_session_pid/3,
 	 get_user_info/3,
-	 get_user_ip/3,
-	 is_existing_resource/3
+	 get_user_ip/3
 	]).
 
 %% gen_server callbacks
@@ -655,15 +654,6 @@ check_existing_resources(LUser, LServer, LResource) ->
 		 (_) -> ok
 	      end, SIDs)
     end.
-
-is_existing_resource(LUser, LServer, LResource) ->
-	% copy of above but with different return value and doesn't send replaced 
-	% message to ejabberd_c2s process
-	USR = {LUser, LServer, LResource},
-    SIDs = mnesia:dirty_select(
-	     session,
-	     [{#session{sid = '$1', usr = USR, _ = '_'}, [], ['$1']}]),
-	SIDs /= [].
 
 check_max_sessions(LUser, LServer) ->
     %% If the max number of sessions for a given is reached, we replace the
